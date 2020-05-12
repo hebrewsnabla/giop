@@ -4,7 +4,8 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8')
 
 overlay = sys.argv[1]
 ioplab = sys.argv[2]
-file = open('G16html/Overlay%s.html'%overlay,'r',encoding='utf-8')
+gioppath = sys.path[0]
+file = open(gioppath + '/G16html/Overlay%s.html'%overlay,'r',encoding='utf-8')
 html_str = file.read()
 file.close()
 soup = BeautifulSoup(html_str, 'lxml')
