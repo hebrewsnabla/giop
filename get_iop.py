@@ -95,7 +95,10 @@ def print_table(table, sep='* '):
                     has_table = detect_table(key)
                     if not has_table:
                         rowstr += parse_sup(key)
-                        rowstr += '&nbsp;'*8                   
+                        if style == 'txt':
+                            rowstr += ' '*8
+                        elif style == 'md':
+                            rowstr += '&nbsp;'*8                   
                 #try:
                 #    rowstr += key.string.strip('\n')
                 #    rowstr += '  '
@@ -118,8 +121,8 @@ for iop in iopname:
     elif id != ioplab: 
         continue
     iopstr = iop.string
-    if style=='md':
-        iopstr = '### ' + iopstr
+    #if style=='md':
+    iopstr = '### ' + iopstr
     print(iopstr)
     
     #siblings = iop.next_siblings
@@ -139,15 +142,23 @@ for iop in iopname:
             break
         if 'table' in nextsib.name:
             print_table( nextsib )
+            if style=='md':
+                print('\n')
             nextsib = nextsib.next_sibling.next_sibling
         elif 'hr' in nextsib.name:
+            if style=='md':
+                print('\n')
             break
         elif 'p' in nextsib.name:
             pstr = parse_sup(nextsib)
             print(pstr)
+            if style=='md':
+                print('\n')
             nextsib = nextsib.next_sibling.next_sibling
         elif 'h4' in nextsib.name:
             print(nextsib.string)
+            if style=='md':
+                print('\n')
             nextsib = nextsib.next_sibling.next_sibling
         elif 'div' in nextsib.name:
             for i,divchild in enumerate(nextsib.children):
@@ -158,9 +169,13 @@ for iop in iopname:
                     continue
                 if 'table' in divchild.name:
                     print_table(divchild)
+                    if style=='md':
+                        print('\n')
                 elif 'p' in divchild.name:
                     pstr = parse_sup(divchild)
                     print(pstr)
+                    if style=='md':
+                        print('\n')
                 else:
                     print("Error: label name not recognized")
             nextsib = nextsib.next_sibling.next_sibling
