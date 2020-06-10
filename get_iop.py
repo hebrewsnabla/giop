@@ -4,6 +4,10 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8')
 
 overlay = sys.argv[1]
 ioplab = sys.argv[2]
+if len(sys.argv)==4:
+    style = sys.argv[3]
+else:
+    style = 'txt'
 gioppath = sys.path[0]
 file = open(gioppath + '/G16html/Overlay%s.html'%overlay,'r',encoding='utf-8')
 html_str = file.read()
@@ -21,19 +25,54 @@ def parse_sup(key):
         else:
             if 'sup' in item.name:
                 keystr += '^'
+                try:
+                    keystr += item.string
+                except:
+                    try:
+                        keystr += ('(' + parse_sup(item) + ')')
+                    except:
+                        print('err:', item)
+            elif 'span' in item.name or 'a' in item.name:
+                try:
+                    keystr += ('`' + item.string + '`')
+                except:
+                    print('err:', item)
+            elif 'i' in item.name:
                 keystr += item.string
+            elif 'br' in item.name or 'em' in item.name:
+                #print('\n')
+                pass
             else:
+                print("err:", item)
                 keystr += item.string
     return keystr
 
-def print_table(table):
+def detect_table(key):
+    has_table = False
+    for k in key.contents:
+        try:
+            istable = 'table' in k.name
+        except:
+            #print(k)
+            pass
+        else:
+            if istable:
+                has_table = True
+                print_table(k, '\t\t')
+    return has_table
+
+def print_table(table, sep='* '):
     #table = iop.next_sibling.next_sibling.next_sibling.next_sibling
     #print(table.name)
     #if 'table' not in table.name: continue
     tbody = table.tbody
     #print(s,table)
     #tabdict = {}
-    rows = tbody.children
+    try:
+        rows = tbody.children
+    except:
+        #print("err:", tbody)
+        rows = table.children
     for n,row in enumerate(rows):
         #print(n,tag)
         try:
@@ -42,21 +81,26 @@ def print_table(table):
         except:
             continue
         else:
+            #print(row.children)
             rowstr = ""
+            if style=='md':
+                rowstr += sep
             for m,key in enumerate(row.children):
                 try:
-                    sup = key.sup.string
+                    cont = key.contents
                 except:
                     pass
                 else:
                     #print(key.contents)
-                    rowstr += parse_sup(key)
-                    rowstr += '  '
-                try:
-                    rowstr += key.string.strip('\n')
-                    rowstr += '  '
-                except:
-                    continue
+                    has_table = detect_table(key)
+                    if not has_table:
+                        rowstr += parse_sup(key)
+                        rowstr += '        '                    
+                #try:
+                #    rowstr += key.string.strip('\n')
+                #    rowstr += '  '
+                #except:
+                #    continue
             print(rowstr)
 
 
@@ -69,8 +113,14 @@ for iop in iopname:
     #print(id)
     id = id.split('_')[-1]
     
-    if id != ioplab: continue
-    print(iop.string)
+    if ioplab=='all':
+        pass
+    elif id != ioplab: 
+        continue
+    iopstr = iop.string
+    if style=='md':
+        iopstr = '### ' + iopstr
+    print(iopstr)
     
     #siblings = iop.next_siblings
     #intro = iop.next_sibling.next_sibling
@@ -79,6 +129,14 @@ for iop in iopname:
     nextsib = iop.next_sibling.next_sibling
 
     while(True):
+        try:
+            nextsibname = nextsib.name
+        except:
+            #if '/div' in nextsib:
+            #    pass
+            #else:
+            #print("Err:", nextsib)
+            break
         if 'table' in nextsib.name:
             print_table( nextsib )
             nextsib = nextsib.next_sibling.next_sibling
