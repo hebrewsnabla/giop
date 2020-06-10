@@ -95,7 +95,7 @@ def print_table(table, sep='* '):
                     has_table = detect_table(key)
                     if not has_table:
                         rowstr += parse_sup(key)
-                        rowstr += '        '                    
+                        rowstr += '&nbsp;'*8                   
                 #try:
                 #    rowstr += key.string.strip('\n')
                 #    rowstr += '  '
