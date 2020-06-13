@@ -58,8 +58,21 @@ def detect_table(key):
         else:
             if istable:
                 has_table = True
-                print_table(k, '\t\t')
+                print_table(k, '    + ')
     return has_table
+
+def lj(s, style):
+    fill = ' '
+    if len(s) < 7:
+        sjust = s.ljust(10, fill)
+    elif len(s) < 17:
+        sjust = s.ljust(20, fill)
+    else:
+        sjust = s + fill*8
+    
+    if style=='md':
+        sjust = sjust.replace(' ', '&nbsp;')
+    return sjust
 
 def print_table(table, sep='* '):
     #table = iop.next_sibling.next_sibling.next_sibling.next_sibling
@@ -94,11 +107,11 @@ def print_table(table, sep='* '):
                     #print(key.contents)
                     has_table = detect_table(key)
                     if not has_table:
-                        rowstr += parse_sup(key)
-                        if style == 'txt':
-                            rowstr += ' '*8
-                        elif style == 'md':
-                            rowstr += '&nbsp;'*8                   
+                        rowstr += lj(parse_sup(key), style)
+                        #if style == 'txt':
+                        #    rowstr += ' '
+                        #elif style == 'md':
+                        #    rowstr += ' ' #'&nbsp;'*8                  
                 #try:
                 #    rowstr += key.string.strip('\n')
                 #    rowstr += '  '
